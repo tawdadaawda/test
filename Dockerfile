@@ -5,22 +5,24 @@ FROM node:alpine
 WORKDIR '/app'
 
 #Copy the dependencies file
-COPY package*.json ./
+COPY ./package.json /app/package.json
+COPY ./package-lock.json /app/package-lock.json
+
 
 #Install dependencies
-RUN npm install
+RUN yarn install
 
 #Copy remaining files
 COPY . .
 
 #Build the project for production
-RUN npm run build
+RUN yarn build
 
 #Run Stage Start
-FROM nginx:alpine
+FROM nginx:latest
 
 # expose port 80
 EXPOSE 80
 
-#Copy production build files from builder phase to nginx
+COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=0 /app/build /usr/share/nginx/html
